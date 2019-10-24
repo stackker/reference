@@ -25,7 +25,151 @@ def test_root(client):
     assert(b'API' in rv.data)
 
 
+def test_add(client):
+
+    # clear out all the data
+    rv = client.post('/clear')
+
+    # add a good one and make sure it works
+    rv = client.post('/add', 
+        json=calgary)
+    assert(rv.status_code == 200)
+   
+    # add one with out a key and make sure it fails
+    rv = client.post('/add', 
+        json={"city":"Calgary", "lat":51.05, "long":-114.05})
+    assert(rv.status_code == 400)
+    json = rv.get_json()
+    assert("msg" in json)
+
+    # add the same key again to make sure it fails
+    rv = client.post('/add', 
+        json=calgary)
+    assert(rv.status_code == 400)
+    assert("msg" in json)
+   
+    # add one with a string key it will cause the all to fail
+    rv = client.post('/add', 
+        json={"key":"cal", "city":"Calgary", "lat":51.05, "long":-114.05})
+    assert(rv.status_code == 400)
+    assert("msg" in json)
+
+    # we should have one entry after all this
+    rv = client.post('/all')
+    assert(rv.status_code == 200)
+    json = rv.get_json()
+    assert(len(json) == 1)
+    
+
+def test_delete(client):
+
+    # clear out all the data
+    rv = client.post('/clear')
+
+    # delete one without a key and make sure it fails
+    rv = client.post('/delete', 
+        json={"city":"calgary"})
+    assert(rv.status_code == 400)
+    json = rv.get_json()
+    assert("msg" in json)
+
+    # delete one that does not exist and make sure it fails
+    rv = client.post('/delete', 
+        json={"key":9,"city":"calgary"})
+    assert(rv.status_code == 400)
+    json = rv.get_json()
+    assert("msg" in json)
+
+    # add a good one to delete
+    rv = client.post('/add', 
+        json=calgary)
+    assert(rv.status_code == 200)
+
+    # delete, and make sure it works
+    rv = client.post('/delete', 
+        json=calgary)
+    assert(rv.status_code == 200)
+
+    # we should have nothing in it
+    rv = client.post('/all')
+    assert(rv.status_code == 200)
+    json = rv.get_json()
+    assert(len(json) == 0)
+
+def test_read(client):
+
+    # clear out all the data
+    rv = client.post('/clear')
+
+    # read one without a key and make sure it fails
+    rv = client.post('/read', 
+        json={"city":"calgary"})
+    assert(rv.status_code == 400)
+    json = rv.get_json()
+    assert("msg" in json)
+
+    # read one that does not exist and make sure it fails
+    rv = client.post('/read', 
+        json={"key":9,"city":"calgary"})
+    assert(rv.status_code == 400)
+    json = rv.get_json()
+    assert("msg" in json)
+
+    # add a good one to read
+    rv = client.post('/add', 
+        json=calgary)
+    assert(rv.status_code == 200)
+
+    # read, and make sure it works
+    rv = client.post('/read', 
+        json=calgary)
+    assert(rv.status_code == 200)
+    json = rv.get_json()
+    assert(json["city"] == "Calgary")
+
+
+def test_update(client):
+
+    # clear out all the data
+    rv = client.post('/clear')
+
+    # update one without a key and make sure it fails
+    rv = client.post('/update', 
+        json={"city":"calgary"})
+    assert(rv.status_code == 400)
+    json = rv.get_json()
+    assert("msg" in json)
+
+    # update one that does not exist and make sure it fails
+    rv = client.post('/update', 
+        json={"key":9,"city":"calgary"})
+    assert(rv.status_code == 400)
+    json = rv.get_json()
+    assert("msg" in json)
+
+    # add a good one to update
+    rv = client.post('/add', 
+        json=calgary)
+    assert(rv.status_code == 200)
+
+    # update, and make sure it works
+    rv = client.post('/update', 
+        json={"key":1, "city":"Denholm", "lat":31.05, "long":-110.05})
+    assert(rv.status_code == 200)
+
+    # read, and make sure it works
+    rv = client.post('/read', 
+        json=calgary)
+    assert(rv.status_code == 200)
+    json = rv.get_json()
+    assert(json["city"] == "Denholm")
+
+
 def test_crud(client):
+
+    # clear out all the data
+    rv = client.post('/clear')
+
     # we should start with no data
     rv = client.post('/all')
     assert(rv.status_code == 200)
@@ -69,7 +213,7 @@ def test_crud(client):
     rv = client.post('/delete', 
         json={"key": edmonton["key"]})
     # the delete should fail
-    assert(rv.status_code == 404)
+    assert(rv.status_code == 400)
 
     # we should have one now
     rv = client.post('/all')
@@ -77,9 +221,8 @@ def test_crud(client):
     json = rv.get_json()
     assert(len(json) == 1)
 
-    # delete calgary and there should zero
-    rv = client.post('/delete', 
-        json={"key": calgary["key"]})
+    # clear the data and there should zero
+    rv = client.post('/clear', )
     assert(rv.status_code == 200)
 
     # they should be all gone
@@ -87,7 +230,6 @@ def test_crud(client):
     assert(rv.status_code == 200)
     json = rv.get_json()
     assert(len(json) == 0)
-
 
 
 def test_test(client):
@@ -99,3 +241,16 @@ def test_test(client):
     # print('test_test rv: ',rv)
     # print('test_test rv.data: ',rv.data)
     # print('test_test rv.json: ',rv.get_json())
+
+
+def xtestx_play():
+    print(1)
+    print('a')
+    a = 1
+    b = 2
+    ty = type(b)
+    print(ty)
+    if not isinstance(b, ty):
+        print(True)
+    else:
+        print(False)

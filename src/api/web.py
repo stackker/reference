@@ -7,8 +7,8 @@ from flask import Flask, jsonify, request
 from flask_cors import CORS
 import json
 
-data = []
-keys = {}
+data = {}
+# keys = {}
 
 print("--- Starting", __file__)
 
@@ -23,46 +23,90 @@ def hello():
 
 @app.route("/all", methods = ['POST','GET'])
 def all():
-	try :
-		content = request.get_json()
-		return jsonify(data), 200
-	except Exception as e:
-		traceback.print_stack()
-		print('**** Not a valid request. ', e)
-	return jsonify('{}'), 404
+	return jsonify(data), 200
+
 
 #
-# There is a bug here. That same key can be added multiple times but can not
-# be deleted..... Before you fix the code, what do you need to do first?
+# Add a new entry to the data store
 #
+firstKeyType = None
 @app.route("/add", methods = ['POST'])
 def add():
-	global data
-	try :
-		content = request.get_json()
-		keys[content["key"]] = len(data)
-		# print(keys)
-		data.append(content)
-		return jsonify({}), 200
-	except Exception as e:
-		traceback.print_stack()
-		print('**** Not a valid request. ', e)
-	return jsonify('{}'), 404
+	global data, firstKeyType
+
+	content = request.get_json()
+
+	if 'key' not in content:
+		return jsonify({"msg":"There must be a 'key' attribute"}), 400
+
+	key = content['key']
+
+	if firstKeyType:
+		if not isinstance(key, firstKeyType):
+			return jsonify({"msg":"Keys must be of the same type, that last one was " + str(firstKeyType) + " but this one is " + str(type(key))}), 400
+	else:
+		firstKeyType = type(key)
+
+	if key in data:
+		return jsonify({"msg":"You can not add '" + str(key) + "' again."}), 400
+	
+	data[key] = content
+
+	return jsonify({}), 200
 
 
 @app.route("/delete", methods = ['POST'])
 def delete():
 	global data
-	try :
-		content = request.get_json()
-		key = content["key"]
-		data.pop(keys[key])
-		del keys[key]
-		return jsonify({}), 200
-	except Exception as e:
-		# traceback.print_stack()
-		print('**** Not a valid request. ', e)
-	return jsonify('{}'), 404
+
+	content = request.get_json()
+
+	if 'key' not in content:
+		return jsonify({"msg":"There must be a 'key' attribute"}), 400
+
+	key = content['key']
+
+	if key not in data:
+		return jsonify({"msg":"You can not delete '" + str(key) + "', it does not exist."}), 400
+
+	del data[key]
+	return jsonify({}), 200
+
+
+
+@app.route("/read", methods = ['POST'])
+def read():
+	global data
+
+	content = request.get_json()
+
+	if 'key' not in content:
+		return jsonify({"msg":"There must be a 'key' attribute"}), 400
+
+	key = content['key']
+
+	if key not in data:
+		return jsonify({"msg":"You can not read '" + str(key) + "', it does not exist."}), 400
+
+	return jsonify(data[key]), 200
+
+
+@app.route("/update", methods = ['POST'])
+def update():
+	global data
+
+	content = request.get_json()
+
+	if 'key' not in content:
+		return jsonify({"msg":"There must be a 'key' attribute"}), 400
+
+	key = content['key']
+
+	if key not in data:
+		return jsonify({"msg":"You can not update '" + str(key) + "', it does not exist."}), 400
+
+	data[key] = content
+	return jsonify({}), 200
 
 
 @app.route("/load", methods = ['GET'])
@@ -75,7 +119,6 @@ def load():
 			print('Record: ', d)
 	print("data2:", data)
 	return "<h1>EvolveU test</h1> <h2>" + str(len(data)) + " records Loaded</h2>"
-
 
 
 @app.route("/save", methods = ['GET'])
@@ -93,6 +136,12 @@ def save():
 ]
 '''
 
+@app.route("/clear", methods = ['POST','GET'])
+def clear():
+	global data
+	data = {}
+	return jsonify("{}"), 200
+
 @app.route("/test", methods = ['POST','GET'])
 def test():
 	try :
@@ -106,4 +155,4 @@ def test():
 	except Exception as e:
 		traceback.print_stack()
 		print('**** Not a valid request. ', e)
-	return jsonify('{}'), 404
+	return jsonify('{}'), 400
