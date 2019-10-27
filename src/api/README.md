@@ -36,10 +36,10 @@ Run the tests as follows:
 ```sh
 # Note this may not work in windows. We'll test.
 PYTHONPATH=. pytest -s
-# or -- we will use this one later
-PYTHONPATH=. pytest -k questions -s
-# or -- we will use this one later
-PYTHONPATH=. pytest tests/test_sql.py -s -k _obj
+# or sample only -- we will use this one later
+PYTHONPATH=. pytest -k dontrunbe -s
+# or sample only -- we will use this one later
+PYTHONPATH=. pytest dontrunme/sampleonly.py -s -k _obj
 ```
 
 If the tests all work from the first command, which they should, start the web server. If the tests fail we'll need to fix that first. That is one of the points of writing tests. The following command will start the web server:
