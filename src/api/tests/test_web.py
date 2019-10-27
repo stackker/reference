@@ -21,12 +21,18 @@ def client():
 def test_root(client):
     rv = client.get('/')
     assert(rv.status_code == 200)
-    assert(b'EvolveU test' in rv.data)
-    assert(b'API' in rv.data)
+    assert(b'EvolveU Test API' in rv.data)
+
+
+def test_clear(client):
+    # clear out all the data
+    rv = client.post('/clear')
+    assert(rv.status_code == 200)
+    json = rv.get_json()
+    assert(json == {})
 
 
 def test_add(client):
-
     # clear out all the data
     rv = client.post('/clear')
 
@@ -125,7 +131,7 @@ def test_read(client):
         json=calgary)
     assert(rv.status_code == 200)
     json = rv.get_json()
-    assert(json["city"] == "Calgary")
+    assert(json[0]['city'] == "Calgary")
 
 
 def test_update(client):
@@ -162,7 +168,7 @@ def test_update(client):
         json=calgary)
     assert(rv.status_code == 200)
     json = rv.get_json()
-    assert(json["city"] == "Denholm")
+    assert(json[0]["city"] == "Denholm")
 
 
 def test_crud(client):
@@ -241,16 +247,3 @@ def test_test(client):
     # print('test_test rv: ',rv)
     # print('test_test rv.data: ',rv.data)
     # print('test_test rv.json: ',rv.get_json())
-
-
-def xtestx_play():
-    print(1)
-    print('a')
-    a = 1
-    b = 2
-    ty = type(b)
-    print(ty)
-    if not isinstance(b, ty):
-        print(True)
-    else:
-        print(False)

@@ -1,44 +1,70 @@
 
 global.fetch = require('node-fetch');
 
-// test('test that the fetch works?', (done) => {
-    // expect(functions.add(1,2)).toBe(3);
-    // expect(functions.add(101,202)).toBe(303);
-    // console.log("Hello World1");
-    // return 'asdf';
-    // console.log("Hello World2");
-    // const data = testPost(done);
-    // console.log(data);
-    // done();
-// });
+/*
+    These are destructive tests. The URL will have its data
+    blown away.
+
+    These tests were created to give a fairly comprehensive example
+    on how to interact with an API. It does the full CRUD. Comments
+    are appreciated.
+*/
+
+const url = 'http://localhost:8000/';
 
 test('test that the fetch works?', async () => {
 
-    const url = 'http://localhost:8000/'
     const clients = [
         {key:1, name:"Larry"},
+        {key:2, name:"Lorraine"},
     ]
 
+    // Check that the server is running and clear any data
     let data = await postData(url + 'clear');
 
     data = await postData(url + 'all');
+    expect(data.status).toEqual(200);
     expect(data.length).toBe(0);
 
     data = await postData(url + 'add', clients[0]);
-    // console.log(data);
-    expect(data).toEqual({});
+    expect(data.status).toEqual(200);
 
     data = await postData(url + 'all');
-    // console.log(data);
-    // console.log(data.length);
+    expect(data.status).toEqual(200);
     expect(data.length).toBe(1);
-    // expect(data).toEqual({});
+    expect(data[0].name).toBe("Larry");
 
+    // add a second with the same key which should be an error
     data = await postData(url + 'add', clients[0]);
-    console.log(data);
-    expect(data.length).toBe(0);
-    expect(data).toMatchObject({});
+    expect(data.status).toEqual(400);
 
+    // add a second which should be ok
+    data = await postData(url + 'add', clients[1]);
+    expect(data.status).toEqual(200);
+
+    data = await postData(url + 'all');
+    expect(data.status).toEqual(200);
+    expect(data.length).toBe(2);
+    expect(data[1].name).toBe("Lorraine");
+
+    data = await postData(url + 'read', {key:1});
+    expect(data.status).toEqual(200);
+    expect(data.length).toBe(1);
+    expect(data[0].name).toBe("Larry");
+
+    data = await postData(url + 'update', {key:1, name:"George"});
+    expect(data.status).toEqual(200);
+
+    data = await postData(url + 'read', {key:1});
+    expect(data.status).toEqual(200);
+    expect(data.length).toBe(1);
+    expect(data[0].name).toBe("George");
+
+    data = await postData(url + 'delete', {key:1});
+    expect(data.status).toEqual(200);
+
+    data = await postData(url + 'read', {key:1});
+    expect(data.status).toEqual(400);
 });
 
 
@@ -57,7 +83,10 @@ async function postData(url = '', data = {}) {
         referrer: 'no-referrer',    // no-referrer, *client
         body: JSON.stringify(data)  // body data type must match "Content-Type" header
     });
-    console.log(response.status);
-    console.log(response.statusText);
-    return await response.json()    // parses JSON response into native JavaScript objects
+
+    const json = await response.json();    // parses JSON response into native JavaScript objects
+    json.status = response.status;
+    json.statusText = response.statusText;
+    // console.log(json, typeof(json));
+    return json;
 }

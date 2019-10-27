@@ -3,12 +3,11 @@
 #
 import os
 import traceback
-from flask import Flask, jsonify, request
+from flask import Flask, jsonify, request, render_template
 from flask_cors import CORS
 import json
 
 data = {}
-# keys = {}
 
 print("--- Starting", __file__)
 
@@ -18,17 +17,17 @@ CORS(app, supports_credentials=True)
 
 @app.route("/")
 def hello():
-	return "<h1>EvolveU test</h1> <h2>API Server up and running..</h2>"
+	return render_template("clock-bos.html")
+	# return "<h1>EvolveU test</h1> <h2>API Server up and running..</h2>"
 
 
 @app.route("/all", methods = ['POST','GET'])
 def all():
-	return jsonify(data), 200
+
+	print(list(data.values()))
+	return jsonify(list(data.values())), 200
 
 
-#
-# Add a new entry to the data store
-#
 firstKeyType = None
 @app.route("/add", methods = ['POST'])
 def add():
@@ -73,7 +72,6 @@ def delete():
 	return jsonify({}), 200
 
 
-
 @app.route("/read", methods = ['POST'])
 def read():
 	global data
@@ -88,7 +86,7 @@ def read():
 	if key not in data:
 		return jsonify({"msg":"You can not read '" + str(key) + "', it does not exist."}), 400
 
-	return jsonify(data[key]), 200
+	return jsonify([data[key]]), 200
 
 
 @app.route("/update", methods = ['POST'])
@@ -128,19 +126,13 @@ def save():
 		json.dump(data, outfile)
 	return "<h1>EvolveU test</h1> <h2>" + str(len(data)) + " records Saved</h2>"
 
-'''
-[
-    { "key": 1, "city": "Calgary", "lat": 51.05, "long": -114.05 },
-    { "key": 2, "city": "Edmonton", "lat": 53.55, "long": -113.49 },
-    { "key": 3, "city": "Red Deer", "lat": 52.28, "long": -113.81 }
-]
-'''
 
 @app.route("/clear", methods = ['POST','GET'])
 def clear():
 	global data
 	data = {}
-	return jsonify("{}"), 200
+	return jsonify(data), 200
+
 
 @app.route("/test", methods = ['POST','GET'])
 def test():
