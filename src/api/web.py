@@ -9,8 +9,6 @@ import json
 
 data = {}
 
-print("--- Starting", __file__)
-
 app = Flask(__name__)
 app.secret_key = os.urandom(16)
 CORS(app, supports_credentials=True)
@@ -148,3 +146,7 @@ def test():
 		traceback.print_stack()
 		print('**** Not a valid request. ', e)
 	return jsonify('{}'), 400
+
+if __name__ == '__main__':
+	print("--- Starting", __file__)
+	app.run(debug=True, use_reloader=True)

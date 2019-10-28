@@ -45,17 +45,14 @@ PYTHONPATH=. pytest dontrunme/sampleonly.py -s -k _obj
 If the tests all work from the first command, which they should, start the web server. If the tests fail we'll need to fix that first. That is one of the points of writing tests. The following command will start the web server:
 
 ```sh
-pipenv shell # only do this once
-# mac or linux 
+pipenv shell # only do this once per session
 ./start
-# windows
-gunicorn web:app --reload --log-file=-
 ```
 
 Your test / play API server is now running on your computer. This is simulating a server on the internet. 
 
 In your browser address enter the following:
-- http://localhost:8000
+- http://localhost:5000
 you should see a welcome screen.
 
 

@@ -10,7 +10,7 @@ global.fetch = require('node-fetch');
     are appreciated.
 */
 
-const url = 'http://localhost:8000/';
+const url = 'http://localhost:5000/';
 
 test('test that the fetch works?', async () => {
 
