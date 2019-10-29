@@ -45,7 +45,12 @@ PYTHONPATH=. pytest dontrunme/sampleonly.py -s -k _obj
 If the tests all work from the first command, which they should, start the web server. If the tests fail we'll need to fix that first. That is one of the points of writing tests. The following command will start the web server:
 
 ```sh
+# make sure you are in "pipenv shell"
+
+# mac / linux
 pipenv shell # only do this once per session
+#windows
+python web.py
 ./start
 ```
 
