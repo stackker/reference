@@ -171,6 +171,13 @@ def test_update(client):
     assert(json[0]["city"] == "Denholm")
 
 
+def test_load(client):
+
+    rv = client.get('/load')
+    assert(rv.status_code == 200)
+    rv = client.post('/all')
+    assert(rv.status_code == 200)
+
 def test_crud(client):
 
     # clear out all the data
