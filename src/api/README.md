@@ -19,6 +19,9 @@ Now that python and pipenv are installed on your computer, you are ready to set 
 Install the packages required for the API using the following command. You must be in the correct directory for the rest of these commands to work.
 
 ```sh
+cd /code/reference/src/api          ==> or
+cd ~/code/reference/src/api
+
 pipenv install
 ```
 
@@ -34,24 +37,18 @@ Now that the project and all its dependencies are installed and we are in the co
 Run the tests as follows:
 
 ```sh
-# Note this may not work in windows. We'll test.
-PYTHONPATH=. pytest -s
+ python -m pytest -s
 # or sample only -- we will use this one later
-PYTHONPATH=. pytest -k dontrunbe -s
+ python -m pytest -k dontrunbe -s
 # or sample only -- we will use this one later
-PYTHONPATH=. pytest dontrunme/sampleonly.py -s -k _obj
+ python -m pytest dontrunme/sampleonly.py -s -k _obj
 ```
 
 If the tests all work from the first command, which they should, start the web server. If the tests fail we'll need to fix that first. That is one of the points of writing tests. The following command will start the web server:
 
 ```sh
-# make sure you are in "pipenv shell"
-
-# mac / linux
 pipenv shell # only do this once per session
-#windows
 python web.py
-./start
 ```
 
 Your test / play API server is now running on your computer. This is simulating a server on the internet. 
